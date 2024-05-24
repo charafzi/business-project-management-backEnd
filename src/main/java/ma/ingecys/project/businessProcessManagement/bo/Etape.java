@@ -6,17 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.util.List;
 
-@SuperBuilder
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 public class Etape implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +27,7 @@ public class Etape implements Serializable {
     private int dureeEstimee;
     private int delaiAttente;
     private boolean isFirst;
+    private boolean isIntermediate;
     private boolean isEnd;
     private boolean isValidate;
     private boolean isPaid;
@@ -52,5 +51,7 @@ public class Etape implements Serializable {
     @OneToMany(mappedBy = "to",cascade = CascadeType.ALL)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Connexion> precedents;
-
+    @OneToMany(mappedBy = "etape")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Tache> taches;
 }

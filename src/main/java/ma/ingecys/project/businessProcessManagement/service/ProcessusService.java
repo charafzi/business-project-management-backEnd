@@ -35,8 +35,8 @@ public class ProcessusService implements ProcessusServiceInterface{
     }
 
     @Override
-    public void save(Processus process) {
-        processusRepository.save(process);
+    public Processus save(Processus process) {
+        return processusRepository.save(process);
     }
 
     @Override

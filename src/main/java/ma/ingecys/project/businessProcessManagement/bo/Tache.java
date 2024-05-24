@@ -1,9 +1,7 @@
 package ma.ingecys.project.businessProcessManagement.bo;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -11,13 +9,14 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
-@SuperBuilder
-@EqualsAndHashCode(callSuper = true)
+@Builder
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class Tache extends Etape implements Serializable {
+public class Tache implements Serializable {
+    @Id
+    private Long idTache;
     private String objetTache;
     private int priorite;
     @Enumerated(EnumType.STRING)
@@ -28,4 +27,13 @@ public class Tache extends Etape implements Serializable {
     private LocalDate dateExpiration;
     @OneToMany(mappedBy = "tache")
     private List<Travailleur> travailleurs;
+    @ManyToOne
+    @JoinColumn(name = "idEtape")
+    private Etape etape;
+    @ManyToOne
+    @JoinColumn(name = "tache_mere_id")
+    private Tache tache_mere;
+    @OneToMany(mappedBy = "tache_mere",cascade = CascadeType.ALL)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Tache> sous_taches;
 }

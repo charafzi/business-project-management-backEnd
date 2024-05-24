@@ -1,5 +1,6 @@
 package ma.ingecys.project.businessProcessManagement.bo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,5 +21,6 @@ public class Categorie implements Serializable {
     private Long idCategorie;
     private String nom;
     @OneToMany(mappedBy = "categorie")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Etape> etapes;
 }

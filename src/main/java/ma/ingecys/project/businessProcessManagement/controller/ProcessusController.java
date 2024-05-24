@@ -35,9 +35,9 @@ public class ProcessusController {
     }
 
     @PostMapping()
-    public void saveProcessus(@RequestBody Processus p
+    public Processus saveProcessus(@RequestBody Processus p
     ){
-        processusService.save(p);
+        return processusService.save(p);
     }
 
     @DeleteMapping(path = "/{id}")
