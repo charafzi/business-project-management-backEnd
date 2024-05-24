@@ -16,6 +16,7 @@ import java.util.List;
 @Entity
 public class Tache implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idTache;
     private String objetTache;
     private int priorite;
