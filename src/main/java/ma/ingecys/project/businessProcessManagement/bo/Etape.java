@@ -25,7 +25,9 @@ public class Etape implements Serializable {
     private String description;
     private int pourcentage;
     private int dureeEstimee;
+    private DurationUnite dureeEstimeeUnite;
     private int delaiAttente;
+    private DurationUnite delaiAttenteUnite;
     private boolean isFirst;
     private boolean isIntermediate;
     private boolean isEnd;
