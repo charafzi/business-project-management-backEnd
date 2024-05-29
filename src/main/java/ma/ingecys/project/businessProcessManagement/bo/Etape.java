@@ -33,6 +33,7 @@ public class Etape implements Serializable {
     private boolean isEnd;
     private boolean isValidate;
     private boolean isPaid;
+    private boolean isAccepted;
     @ManyToOne
     @JoinColumn(name = "idProcessus")
     private Processus processus;

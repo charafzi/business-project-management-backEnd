@@ -15,8 +15,11 @@ import java.io.Serializable;
 @Entity
 public class Travailleur implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idTravailleur;
+    private String matricule;
+    private String nom;
+    private String prenom;
+    private String numTel;
+    private String email;
     @ManyToOne
     @JoinColumn(name = "tache_id")
     private Tache tache;

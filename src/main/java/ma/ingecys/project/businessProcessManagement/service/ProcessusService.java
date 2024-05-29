@@ -92,6 +92,7 @@ public class ProcessusService implements ProcessusServiceInterface{
                     oldEtape.setCategorie(newEtape.getCategorie());
                     oldEtape.setDureeEstimeeUnite(newEtape.getDureeEstimeeUnite());
                     oldEtape.setDelaiAttenteUnite(newEtape.getDelaiAttenteUnite());
+                    oldEtape.setAccepted(newEtape.isAccepted());
                     found = true;
                     break;
                 }
