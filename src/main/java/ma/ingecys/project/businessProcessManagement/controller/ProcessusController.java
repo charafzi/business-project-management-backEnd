@@ -64,7 +64,6 @@ public class ProcessusController {
         etape1.setOrdre(1);
         etape1.setPourcentage(20);
         etape1.setDureeEstimee(10);
-        etape1.setDelaiAttente(0);
         etape1.setFirst(true);
         etape1.setEnd(false);
         etape1.setValidate(false);
@@ -76,7 +75,6 @@ public class ProcessusController {
         etape2.setOrdre(2);
         etape2.setPourcentage(100);
         etape2.setDureeEstimee(20);
-        etape2.setDelaiAttente(5);
         etape2.setFirst(false);
         etape2.setEnd(true);
         etape2.setValidate(true);

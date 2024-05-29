@@ -81,7 +81,6 @@ public class ProcessusService implements ProcessusServiceInterface{
                     oldEtape.setOrdre(newEtape.getOrdre());
                     oldEtape.setStatutEtape(newEtape.getStatutEtape());
                     oldEtape.setDureeEstimee(newEtape.getDureeEstimee());
-                    oldEtape.setDelaiAttente(newEtape.getDelaiAttente());
                     oldEtape.setIndexLigne(newEtape.getIndexLigne());
                     oldEtape.setIndexColonne(newEtape.getIndexColonne());
                     oldEtape.setFirst(newEtape.isFirst());
@@ -91,7 +90,6 @@ public class ProcessusService implements ProcessusServiceInterface{
                     oldEtape.setPourcentage(newEtape.getPourcentage());
                     oldEtape.setCategorie(newEtape.getCategorie());
                     oldEtape.setDureeEstimeeUnite(newEtape.getDureeEstimeeUnite());
-                    oldEtape.setDelaiAttenteUnite(newEtape.getDelaiAttenteUnite());
                     oldEtape.setAccepted(newEtape.isAccepted());
                     found = true;
                     break;
