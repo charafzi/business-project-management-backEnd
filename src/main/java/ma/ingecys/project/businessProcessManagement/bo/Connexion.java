@@ -26,7 +26,7 @@ public class Connexion implements Serializable {
     //delaiAttente et le statut avant de passer de "from" à "to"
     private int delaiAttente;
     private DurationUnite delaiAttenteUnite;
-    private StatutTache statut;
+    private StatutEtape statut;
 
     @Override
     public boolean equals(Object o) {

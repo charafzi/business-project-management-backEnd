@@ -1,12 +1,12 @@
 package ma.ingecys.project.businessProcessManagement.bo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -19,22 +19,34 @@ public class Tache implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idTache;
     private String objetTache;
-    private int priorite;
+    private Priorite priorite;
+    private int pourcentage;
     @Enumerated(EnumType.STRING)
     private StatutTache statutTache;
-    private LocalDate dateDebutPrevue;
-    private LocalDate dateDebutEffective;
-    private LocalDate dateFinEffective;
-    private LocalDate dateExpiration;
-    @OneToMany(mappedBy = "tache")
+    @Enumerated(EnumType.STRING)
+    private StatutEtape statutEtape;
+    private LocalDateTime dateDebutPrevue;
+    private LocalDateTime dateDebutEffective;
+    private LocalDateTime dateFinEffective;
+    private LocalDateTime dateExpiration;
+    @ManyToMany
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "tache_id"),
+            inverseJoinColumns = @JoinColumn(name = "matricule")
+    )
     private List<Travailleur> travailleurs;
     @ManyToOne
-    @JoinColumn(name = "idEtape")
+    @JoinColumn(name = "etape_id")
     private Etape etape;
     @ManyToOne
     @JoinColumn(name = "tache_mere_id")
+    @JsonBackReference
     private Tache tache_mere;
-    @OneToMany(mappedBy = "tache_mere",cascade = CascadeType.ALL)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true)
+    @JoinColumn(name = "tache_mere_id")
+    @JsonManagedReference
     private List<Tache> sous_taches;
+    @ManyToOne
+    @JoinColumn(name = "sousTraitant_id")
+    private SousTraitant sousTraitant;
 }

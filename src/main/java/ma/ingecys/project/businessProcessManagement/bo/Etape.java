@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 @Builder
@@ -23,7 +24,6 @@ public class Etape implements Serializable {
     private int indexColonne;
     private int ordre;
     private String description;
-    private int pourcentage;
     private int dureeEstimee;
     private DurationUnite dureeEstimeeUnite;
     private boolean isFirst;
@@ -41,8 +41,6 @@ public class Etape implements Serializable {
     @ManyToOne
     @JoinColumn(name = "idType")
     private Type type;
-    @Enumerated(EnumType.STRING)
-    private StatutEtape statutEtape;
     @ManyToOne
     @JoinColumn(name = "idResponsable")
     private Responsable valide_par;
@@ -56,3 +54,4 @@ public class Etape implements Serializable {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Tache> taches;
 }
+

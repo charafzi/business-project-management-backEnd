@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -15,14 +14,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Travailleur implements Serializable {
+public class SousTraitant {
     @Id
-    private String matricule;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idSousTraitant;
     private String nom;
-    private String prenom;
-    private String numTel;
-    private String email;
-    @ManyToMany(mappedBy = "travailleurs")
+    private String adresse;
+    private String tel;
+    @OneToMany (mappedBy = "sousTraitant")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Tache> taches;
 }
