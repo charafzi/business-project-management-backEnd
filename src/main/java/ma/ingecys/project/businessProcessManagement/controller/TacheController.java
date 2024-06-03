@@ -1,5 +1,6 @@
 package ma.ingecys.project.businessProcessManagement.controller;
 
+import ma.ingecys.project.businessProcessManagement.bo.Processus;
 import ma.ingecys.project.businessProcessManagement.bo.Tache;
 import ma.ingecys.project.businessProcessManagement.service.TacheService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +32,22 @@ public class TacheController {
         this.tacheService.deleteTacheMere(id);
     }
 
+    @GetMapping("/{id}")
+    Tache getMainTache(@PathVariable Long id){
+        return tacheService.getMainTache(id);
+    }
+
+    @GetMapping("/{id}/process")
+    Processus getProcessByIdMainTache(@PathVariable Long id){
+        return tacheService.getProcessByIdMainTache(id);
+    }
+
+    @PutMapping("/sousTache/{id}")
+    void updateSousTache(
+            @PathVariable Long id,
+            @RequestBody Tache tache
+    ){
+        tacheService.updateSousTache(tache,id);
+    }
 
 }

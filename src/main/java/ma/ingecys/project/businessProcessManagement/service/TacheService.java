@@ -88,11 +88,42 @@ public class TacheService implements TacheServiceInterface {
     }
 
     @Override
+    public Tache getMainTache(Long id) {
+        Optional<Tache> mainTache = tacheRepository.findById(id);
+        if(mainTache.isEmpty())
+            throw new IllegalStateException("Aucune tache mère existe avec id = "+id);
+        return mainTache.get();
+    }
+
+    @Override
     public void deleteTacheMere(Long id) {
         boolean exists = tacheRepository.existsById(id);
         if(!exists)
-            throw new IllegalStateException("Aucune tache existe avec id = "+id);
+            throw new IllegalStateException("Aucune tache mère existe avec id = "+id);
 
         tacheRepository.deleteById(id);
+    }
+
+    @Override
+    public Processus getProcessByIdMainTache(Long id) {
+        Optional<Tache> mainTache = tacheRepository.findById(id);
+        if(mainTache.isEmpty())
+            throw new IllegalStateException("Aucune tache mère existe avec id = "+id);
+        return mainTache.get().getSous_taches().getLast().getEtape().getProcessus();
+    }
+
+    @Override
+    public void updateSousTache(Tache tache,Long id) {
+        Optional<Tache> sousTache = tacheRepository.findById(id);
+        if(sousTache.isEmpty())
+            throw new IllegalStateException("Aucune Sous-Tache existe avec id = "+tache.getIdTache());
+        Tache st = sousTache.get();
+        st.setDateDebutEffective(tache.getDateDebutEffective());
+        st.setDateFinEffective(tache.getDateFinEffective());
+        st.setStatutTache(tache.getStatutTache());
+        st.setPriorite(tache.getPriorite());
+        st.setPourcentage(tache.getPourcentage());
+
+        tacheRepository.save(st);
     }
 }
