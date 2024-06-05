@@ -20,7 +20,8 @@ public class Tache implements Serializable {
     private Long idTache;
     private String objetTache;
     private Priorite priorite;
-    private int pourcentage;
+    @Column(scale = 2)
+    private double pourcentage;
     @Enumerated(EnumType.STRING)
     private StatutTache statutTache;
     @Enumerated(EnumType.STRING)

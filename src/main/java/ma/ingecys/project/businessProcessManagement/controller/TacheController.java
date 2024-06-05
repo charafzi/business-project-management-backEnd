@@ -1,5 +1,6 @@
 package ma.ingecys.project.businessProcessManagement.controller;
 
+import ma.ingecys.project.businessProcessManagement.bo.Connexion;
 import ma.ingecys.project.businessProcessManagement.bo.Processus;
 import ma.ingecys.project.businessProcessManagement.bo.Tache;
 import ma.ingecys.project.businessProcessManagement.service.TacheService;
@@ -48,6 +49,11 @@ public class TacheController {
             @RequestBody Tache tache
     ){
         tacheService.updateSousTache(tache,id);
+    }
+
+    @GetMapping("/test")
+    List<Connexion> getConenxions(){
+        return tacheService.getConnexions();
     }
 
 }
