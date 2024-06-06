@@ -25,7 +25,7 @@ public class TacheController {
     Tache saveMainTache(
             @RequestBody Tache tache,
             @PathVariable Long id){
-        return tacheService.saveMainTache(tache,id);
+        return tacheService.saveTacheMere(tache,id);
     }
 
     @DeleteMapping("/{id}")
@@ -35,12 +35,12 @@ public class TacheController {
 
     @GetMapping("/{id}")
     Tache getMainTache(@PathVariable Long id){
-        return tacheService.getMainTache(id);
+        return tacheService.getTacheMere(id);
     }
 
     @GetMapping("/{id}/process")
     Processus getProcessByIdMainTache(@PathVariable Long id){
-        return tacheService.getProcessByIdMainTache(id);
+        return tacheService.getProcessByIdTacheMere(id);
     }
 
     @PutMapping("/sousTache/{id}")
@@ -49,6 +49,21 @@ public class TacheController {
             @RequestBody Tache tache
     ){
         tacheService.updateSousTache(tache,id);
+    }
+
+    @PutMapping("/{id}")
+    void updateTachdMere(
+            @PathVariable Long id,
+            @RequestBody Tache tache
+    ){
+        this.tacheService.updateTacheMere(id,tache);
+    }
+    @PutMapping("/{id}/dateExpiration")
+    void updateTacheMereDateExpiration(
+            @PathVariable Long id,
+            @RequestBody Tache tache
+    ){
+        this.tacheService.updateTacheMereDateExpiration(id,tache.getDateExpiration());
     }
 
     @GetMapping("/test")

@@ -20,7 +20,7 @@ public class TacheService implements TacheServiceInterface {
     @Autowired
     private TacheRepository tacheRepository;
     @Override
-    public Tache saveMainTache(Tache tache, Long idProcessus) {
+    public Tache saveTacheMere(Tache tache, Long idProcessus) {
         Optional<Processus> processus = processusRepository.findById(idProcessus);
         if(processus.isEmpty())
             throw new IllegalStateException("Aucun processus existe evec id = "+idProcessus);
@@ -140,10 +140,8 @@ public class TacheService implements TacheServiceInterface {
                             }else{
                                 pourcentage = (double) duration/(double) dureeEtape;
                             }
-                            System.err.println("********************** Date debut effective"+t.getDateDebutEffective()+", Now = "+LocalDateTime.now()+",Difference : "+duration+", Percentege : "+pourcentage);
                         }
                     }
-                    System.err.println("Pourcentage : "+pourcentage);
                     t.setPourcentage(pourcentage*100);
                 }
                 tacheRepository.save(tache);
@@ -154,7 +152,7 @@ public class TacheService implements TacheServiceInterface {
     }
 
     @Override
-    public Tache getMainTache(Long id) {
+    public Tache getTacheMere(Long id) {
         Optional<Tache> mainTache = tacheRepository.findById(id);
         if(mainTache.isEmpty())
             throw new IllegalStateException("Aucune tache mère existe avec id = "+id);
@@ -171,7 +169,7 @@ public class TacheService implements TacheServiceInterface {
     }
 
     @Override
-    public Processus getProcessByIdMainTache(Long id) {
+    public Processus getProcessByIdTacheMere(Long id) {
         Optional<Tache> mainTache = tacheRepository.findById(id);
         if(mainTache.isEmpty())
             throw new IllegalStateException("Aucune tache mère existe avec id = "+id);
@@ -191,6 +189,122 @@ public class TacheService implements TacheServiceInterface {
         st.setPourcentage(tache.getPourcentage());
 
         tacheRepository.save(st);
+    }
+
+    @Override
+    public void updateTacheMere(Long id,Tache tache) {
+        Optional<Tache> tachemere = this.tacheRepository.findById(id);
+        if(tachemere.isEmpty())
+            throw new IllegalStateException("Aucune Tache Mere existe avec id = "+id);
+        Tache t = tachemere.get();
+
+        t.setObjetTache(tache.getObjetTache());
+        t.setDateExpiration(tache.getDateExpiration());
+        t.setDateDebutPrevue(tache.getDateDebutPrevue());
+
+        //m-à-j date debut prevue et date expiration pour sous-taches
+        //ces dates seront utilsées pour calculer les dates en basant sur l'ordre (cas des étapes sans précédent)
+        LocalDateTime dateDebutPrevue = t.getDateDebutPrevue();
+        LocalDateTime dateExpiration =t.getDateDebutPrevue();
+        //pour stoker date expiration pour chaque tache
+        Map<Etape,LocalDateTime> mapEtapeDateExp = new HashMap<>();
+
+        for(Tache sousTache:t.getSous_taches()){
+
+            List<Connexion> connexions = sousTache.getEtape().getPrecedents();
+
+            if(connexions.isEmpty()){
+                dateDebutPrevue = dateExpiration;
+            }
+            else{
+                List<LocalDateTime> dates = new ArrayList<>();
+
+                for(Connexion con: connexions){
+                    LocalDateTime date = mapEtapeDateExp.get(con.getFrom());
+                    switch (con.getDelaiAttenteUnite()){
+                        case HOUR :
+                            date = date.plusHours(con.getDelaiAttente());
+                            break;
+                        case DAY:
+                            date = date.plusDays(con.getDelaiAttente());
+                            break;
+                        case MONTH:
+                            date = date.plusMonths(con.getDelaiAttente());
+                            break;
+                    }
+                    dates.add(date);
+                }
+
+                Optional<LocalDateTime> maxDate = dates.stream().max(LocalDateTime::compareTo);
+                dateDebutPrevue = maxDate.get();
+            }
+            DurationUnite dureeUnite = sousTache.getEtape().getDureeEstimeeUnite();
+            int dureeEstimee = sousTache.getEtape().getDureeEstimee();
+
+            switch (dureeUnite){
+                case HOUR :
+                    dateExpiration = dateDebutPrevue.plusHours(dureeEstimee);
+                    break;
+                case DAY:
+                    dateExpiration = dateDebutPrevue.plusDays(dureeEstimee);
+                    break;
+                case MONTH:
+                    dateExpiration = dateDebutPrevue.plusMonths(dureeEstimee);
+                    break;
+            }
+            sousTache.setDateDebutPrevue(dateDebutPrevue);
+            sousTache.setDateExpiration(dateExpiration);
+            mapEtapeDateExp.put(sousTache.getEtape(),sousTache.getDateExpiration());
+        }
+
+
+        //sousTraiatant est affecté
+        if(tache.getTravailleurs().isEmpty()){
+            //detacher tache-mere et travailleurs
+            for (Travailleur travailleur : t.getTravailleurs()) {
+                travailleur.getTaches().remove(t);
+            }
+            t.getTravailleurs().clear();
+            t.setTravailleurs(null);
+            t.setSousTraitant(tache.getSousTraitant());
+            //detacher sous-tache et travailleurs
+            for(Tache sousTache : t.getSous_taches()){
+                for(Travailleur travailleur : sousTache.getTravailleurs()){
+                    travailleur.getTaches().remove(sousTache);
+                }
+                sousTache.getTravailleurs().clear();
+                sousTache.setTravailleurs(null);
+                sousTache.setSousTraitant(tache.getSousTraitant());
+            }
+        }else{
+            //detacher tache-mere et soustraitant
+            if(t.getSousTraitant() != null){
+                t.getSousTraitant().getTaches().remove(t);
+                t.setSousTraitant(null);
+            }
+            t.getTravailleurs().clear();
+            t.setTravailleurs(tache.getTravailleurs());
+            //detacher sous-tache et soustraitant
+            for(Tache sousTache : t.getSous_taches()){
+                if(sousTache.getSousTraitant() != null){
+                    sousTache.getSousTraitant().getTaches().remove(sousTache);
+                    sousTache.setSousTraitant(null);
+                }
+                sousTache.getTravailleurs().clear();
+                sousTache.setTravailleurs(tache.getTravailleurs());
+            }
+        }
+        this.tacheRepository.save(t);
+    }
+
+    @Override
+    public void updateTacheMereDateExpiration(Long id, LocalDateTime dateExpiration) {
+        Optional<Tache> tachemere = this.tacheRepository.findById(id);
+        if(tachemere.isEmpty())
+            throw new IllegalStateException("Aucune Tache Mere existe avec id = "+id);
+        Tache t = tachemere.get();
+        t.setDateExpiration(dateExpiration);
+        this.tacheRepository.save(t);
     }
 
     public List<Connexion> getConnexions(){
