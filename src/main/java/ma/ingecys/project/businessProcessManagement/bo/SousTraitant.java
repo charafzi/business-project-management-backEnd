@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -14,13 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class SousTraitant {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idSousTraitant;
-    private String nom;
+@DiscriminatorValue("SOUSTRAITANT")
+public class SousTraitant extends User implements Serializable {
     private String adresse;
-    private String tel;
     @OneToMany (mappedBy = "sousTraitant")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Tache> taches;

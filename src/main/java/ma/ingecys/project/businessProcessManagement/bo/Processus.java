@@ -26,4 +26,7 @@ public class Processus implements Serializable {
     @OneToMany(mappedBy = "processus",cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Etape> etapes;
+    @ManyToOne
+    @JoinColumn(name = "responsable_id")
+    private Responsable responsable;
 }

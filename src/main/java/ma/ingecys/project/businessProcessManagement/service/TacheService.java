@@ -2,14 +2,13 @@ package ma.ingecys.project.businessProcessManagement.service;
 
 import ma.ingecys.project.businessProcessManagement.bo.*;
 import ma.ingecys.project.businessProcessManagement.repository.ProcessusRepository;
+import ma.ingecys.project.businessProcessManagement.repository.ResponsableRespository;
 import ma.ingecys.project.businessProcessManagement.repository.TacheRepository;
+import ma.ingecys.project.businessProcessManagement.repository.ValidationRespository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.awt.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.List;
 
@@ -19,6 +18,10 @@ public class TacheService implements TacheServiceInterface {
    private ProcessusRepository processusRepository;
     @Autowired
     private TacheRepository tacheRepository;
+    @Autowired
+    private ResponsableRespository responsableRespository;
+    @Autowired
+    ValidationRespository validationRespository;
     @Override
     public Tache saveTacheMere(Tache tache, Long idProcessus) {
         Optional<Processus> processus = processusRepository.findById(idProcessus);
@@ -115,34 +118,38 @@ public class TacheService implements TacheServiceInterface {
             if(tache.getTache_mere()==null){
                 //m-à-j pourcentage
                 for(Tache t :tache.getSous_taches()){
-                    double pourcentage = 0;
-                    /**
-                     * pourcentage = (Aujourd'hui - date debut effective) / Duree etape
-                     **/
-                    if(t.getDateDebutEffective() != null){
-                        if(LocalDateTime.now().isBefore(t.getDateDebutEffective()))
-                            pourcentage = 0;
-                        else{
-                            int duration = (int) Duration.between(t.getDateDebutEffective(),LocalDateTime.now()).toHours();
-                            int dureeEtape = t.getEtape().getDureeEstimee();
-                            switch (t.getEtape().getDureeEstimeeUnite()){
-                                case HOUR :
-                                    break;
-                                case DAY:
-                                    dureeEtape*=24;
-                                    break;
-                                case MONTH:
-                                    dureeEtape*=24*30;
-                                    break;
-                            }
-                            if(duration>dureeEtape){
-                                pourcentage=1;
-                            }else{
-                                pourcentage = (double) duration/(double) dureeEtape;
+                    StatutTache statutTache = t.getStatutTache();
+                    if(statutTache!=null && !statutTache.equals(StatutTache.TERMINE)){
+                        System.out.println("---------------- MAJ PROCESSUS "+t.getEtape().getProcessus().getDescription());
+                        double pourcentage = 0;
+                        /**
+                         * pourcentage = (Aujourd'hui - date debut effective) / Duree etape
+                         **/
+                        if(t.getDateDebutEffective() != null){
+                            if(LocalDateTime.now().isBefore(t.getDateDebutEffective()))
+                                pourcentage = 0;
+                            else{
+                                int duration = (int) Duration.between(t.getDateDebutEffective(),LocalDateTime.now()).toHours();
+                                int dureeEtape = t.getEtape().getDureeEstimee();
+                                switch (t.getEtape().getDureeEstimeeUnite()){
+                                    case HOUR :
+                                        break;
+                                    case DAY:
+                                        dureeEtape*=24;
+                                        break;
+                                    case MONTH:
+                                        dureeEtape*=24*30;
+                                        break;
+                                }
+                                if(duration>dureeEtape){
+                                    pourcentage=1;
+                                }else{
+                                    pourcentage = (double) duration/(double) dureeEtape;
+                                }
                             }
                         }
+                        t.setPourcentage(pourcentage*100);
                     }
-                    t.setPourcentage(pourcentage*100);
                 }
                 tacheRepository.save(tache);
                 mainTaches.add(tache);
@@ -305,6 +312,71 @@ public class TacheService implements TacheServiceInterface {
         Tache t = tachemere.get();
         t.setDateExpiration(dateExpiration);
         this.tacheRepository.save(t);
+    }
+
+    @Override
+    public void savePayement(Long id, Paiement paiement) {
+        Optional<Tache> sousTache = this.tacheRepository.findById(id);
+
+        if(sousTache.isEmpty()){
+            throw new IllegalStateException("Aucune sous-tache existe avec id = "+id);
+        }
+        Tache st = sousTache.get();
+        Paiement p = Paiement.builder()
+                .datePaiement(paiement.getDatePaiement())
+                .etat(paiement.getEtat())
+                .total_a_payer(paiement.getTotal_a_payer())
+                .montantPaye(paiement.getMontantPaye())
+                .reste(paiement.getReste())
+                .justification(paiement.getJustification())
+                .tache(st)
+                .build();
+        st.getPaiements().add(p);
+        this.tacheRepository.save(st);
+    }
+
+    @Override
+    public List<Paiement> getAllPayments(Long id) {
+        Optional<Tache> sousTache = this.tacheRepository.findById(id);
+
+        if(sousTache.isEmpty()){
+            throw new IllegalStateException("Aucune sous-tache existe avec id = "+id);
+        }
+        Tache st = sousTache.get();
+        return st.getPaiements().stream().toList();
+    }
+
+    @Override
+    public void saveValidation(Long id, Validation validation) {
+        Optional<Tache> sousTache = this.tacheRepository.findById(id);
+
+        if(sousTache.isEmpty()){
+            throw new IllegalStateException("Aucune sous-tache existe avec id = "+id);
+        }
+
+
+        Optional<Responsable> responsable = this.responsableRespository.findById(validation.getResponsable().getIdUser());
+        if(responsable.isEmpty()){
+            throw new IllegalStateException("Aucun responsable existe avec id = "+id);
+        }
+        Tache st = sousTache.get();
+        Responsable resp = responsable.get();
+        Validation val = new Validation();
+        val.setCommentaire(validation.getCommentaire());
+        val.setDateValidation(validation.getDateValidation());
+        val.setEtat(validation.getEtat());
+        val.setTache(st);
+        val.setResponsable(resp);
+
+        st.getValidations().add(val);
+        tacheRepository.save(st);
+    }
+
+    @Override
+    public List<Validation> getAllValidations(Long id) {
+        return this.validationRespository.getValidationByTacheIdTache(id)
+                .stream()
+                .toList();
     }
 
     public List<Connexion> getConnexions(){

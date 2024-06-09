@@ -1,5 +1,6 @@
 package ma.ingecys.project.businessProcessManagement.bo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,10 +15,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Responsable implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idResponsable;
-    @OneToMany(mappedBy = "valide_par")
-    private List<Etape> etapees_valides;
+@DiscriminatorValue("RESPONSABLE")
+public class Responsable extends User implements Serializable {
+    @Column(unique = true,nullable = true)
+    private String matricule;
+    @OneToMany(mappedBy = "responsable")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Validation> validations;
+    @OneToMany(mappedBy = "responsable")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Tache> taches;
+    @OneToMany(mappedBy = "responsable")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Processus> processuses;
 }

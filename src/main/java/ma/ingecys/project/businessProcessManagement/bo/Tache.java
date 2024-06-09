@@ -2,6 +2,7 @@ package ma.ingecys.project.businessProcessManagement.bo;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -50,4 +51,15 @@ public class Tache implements Serializable {
     @ManyToOne
     @JoinColumn(name = "sousTraitant_id")
     private SousTraitant sousTraitant;
+    @OneToMany(mappedBy = "tache", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Paiement> paiements;
+    @OneToMany(mappedBy = "tache",cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private List<Validation> validations;
+    @ManyToOne
+    @JoinColumn(name = "responsable_id")
+    private Responsable responsable;
+    @ManyToOne
+    @JoinColumn(name = "team_leader_id")
+    private TeamLeader teamLeader;
 }

@@ -1,6 +1,7 @@
 package ma.ingecys.project.businessProcessManagement.controller;
 
 import ma.ingecys.project.businessProcessManagement.bo.SousTraitant;
+import ma.ingecys.project.businessProcessManagement.dto.SousTraitantDTO;
 import ma.ingecys.project.businessProcessManagement.service.SousTraitantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,7 +19,8 @@ public class SousTraitantController {
     SousTraitantService sousTraitantService;
 
     @GetMapping
-    List<SousTraitant> getAllSoustraitants(){
+    List<SousTraitantDTO> getAllSoustraitants(){
+
         return sousTraitantService.getAllSousTraitant();
     }
 }

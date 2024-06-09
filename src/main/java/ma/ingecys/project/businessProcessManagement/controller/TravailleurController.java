@@ -1,6 +1,7 @@
 package ma.ingecys.project.businessProcessManagement.controller;
 
 import ma.ingecys.project.businessProcessManagement.bo.Travailleur;
+import ma.ingecys.project.businessProcessManagement.dto.TravailleurDTO;
 import ma.ingecys.project.businessProcessManagement.service.TravailleurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,7 +19,7 @@ public class TravailleurController {
     TravailleurService travailleurService;
 
     @GetMapping
-    public List<Travailleur> getAllTypes(){
+    public List<TravailleurDTO> getAllTravailleurs(){
         return travailleurService.getAllTravailleurs();
     }
 }

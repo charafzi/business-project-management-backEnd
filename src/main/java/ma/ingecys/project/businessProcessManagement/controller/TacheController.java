@@ -1,8 +1,6 @@
 package ma.ingecys.project.businessProcessManagement.controller;
 
-import ma.ingecys.project.businessProcessManagement.bo.Connexion;
-import ma.ingecys.project.businessProcessManagement.bo.Processus;
-import ma.ingecys.project.businessProcessManagement.bo.Tache;
+import ma.ingecys.project.businessProcessManagement.bo.*;
 import ma.ingecys.project.businessProcessManagement.service.TacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -64,6 +62,30 @@ public class TacheController {
             @RequestBody Tache tache
     ){
         this.tacheService.updateTacheMereDateExpiration(id,tache.getDateExpiration());
+    }
+
+    @PostMapping("/{id}/payment")
+    void savePayment(
+            @PathVariable Long id,
+            @RequestBody Paiement paiement
+            ){
+        this.tacheService.savePayement(id,paiement);
+    }
+    @PostMapping("/{id}/validation")
+    void saveValidation(
+            @PathVariable Long id,
+            @RequestBody Validation validation
+    ){
+        this.tacheService.saveValidation(id,validation);
+    }
+
+    @GetMapping("/{id}/payments")
+    List<Paiement> getAllPayments(@PathVariable Long id){
+        return this.tacheService.getAllPayments(id);
+    }
+    @GetMapping("/{id}/validations")
+    List<Validation> getAllValidations(@PathVariable Long id){
+        return this.tacheService.getAllValidations(id);
     }
 
     @GetMapping("/test")
