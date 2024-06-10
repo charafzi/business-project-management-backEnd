@@ -1,42 +1,56 @@
 package ma.ingecys.project.businessProcessManagement.controller;
-
-import ma.ingecys.project.businessProcessManagement.service.FileService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/files")
 public class FileController {
 
-    @Autowired
-    private FileService fileService;
+    private static final String UPLOADED_FOLDER = "C:\\Users\\Achra\\Desktop\\PFA\\Implementation\\back-End\\businessProcessManagement\\src\\main\\resources\\files\\payment_justification\\";
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
+        if(file.isEmpty()) {
+
+            return ResponseEntity.badRequest().build();
+        }
+
         try {
-            fileService.storeFile(file);
-            return ResponseEntity.ok().body("File uploaded successfully!");
-        } catch (IOException e) {
-            return ResponseEntity.status(500).body("Failed to upload file: " + e.getMessage());
+            byte[] bytes = file.getBytes();
+            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
+            Files.write(path, bytes);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 
-    @GetMapping("/{filename}")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable String filename) {
+    @GetMapping("/images/{filename}")
+    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
         try {
-            byte[] fileData = fileService.getFile(filename);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
-                    .body(fileData);
-        } catch (IOException e) {
-            return ResponseEntity.status(404).body(("File not found: " + e.getMessage()).getBytes());
+            Path file = Paths.get(UPLOADED_FOLDER).resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_PNG)
+                        .body(resource);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (MalformedURLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

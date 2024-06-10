@@ -328,7 +328,7 @@ public class TacheService implements TacheServiceInterface {
                 .total_a_payer(paiement.getTotal_a_payer())
                 .montantPaye(paiement.getMontantPaye())
                 .reste(paiement.getReste())
-                .justification(paiement.getJustification())
+                .justification_url(paiement.getJustification_url())
                 .tache(st)
                 .build();
         st.getPaiements().add(p);

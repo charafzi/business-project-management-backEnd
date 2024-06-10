@@ -24,9 +24,7 @@ public class Paiement implements Serializable {
     private double montantPaye;
     private double reste;
     private String etat;
-    //private String justification;
-    @Lob
-    private byte[] justification;
+    private String justification_url;
     @ManyToOne
     @JoinColumn(name = "tache_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
